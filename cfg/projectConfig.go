@@ -6,32 +6,34 @@ import (
 	"log"
 )
 
+// // 要大写才能被第三方包序列化
 type openMethod struct {
-	name   string `yaml:"name"`
-	method string `yaml:"method"`
+	Name   string `yaml:"Name"`
+	Method string `yaml:"Method"`
 }
 type ProjectConfig struct {
 	A    string       `yaml:"a"`
 	B    int          `yaml:"b"`
-	open []openMethod `yaml:"open"`
+	Open []openMethod `yaml:"Open"`
 }
 
 func (c *ProjectConfig) GetOpenMethod(name string) string {
-	for _, open := range c.open {
-		if open.name == name {
-			return open.method
+	for _, open := range c.Open {
+		if open.Name == name {
+			return open.Method
 		}
 	}
 	return ""
 }
 func (c *ProjectConfig) SetOpenMethod(name string, method string) {
-	for _, open := range c.open {
-		if open.name == name {
-			open.method = method
+	for i, open := range c.Open {
+		if open.Name == name {
+			// 要用数组下表改 ，否则修改不上
+			c.Open[i].Method = method
 			return
 		}
 	}
-	c.open = append(c.open, openMethod{name, method})
+	c.Open = append(c.Open, openMethod{name, method})
 }
 func (c *ProjectConfig) LoadConfig(path string) *ProjectConfig {
 	// 从YAML文件读取数据
