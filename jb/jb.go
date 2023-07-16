@@ -2,7 +2,6 @@ package jb
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"os/exec"
 	"project/shortcut"
@@ -19,12 +18,12 @@ func findExe() {
 
 	files, err := os.ReadDir(exeHomePath)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
 	}
 
 	for _, file := range files {
 		filename := file.Name()
-		fmt.Println(filename)
+		//fmt.Println(filename)
 		shortcutCreator := shortcut.NewShortcutCreator()
 		if strings.HasPrefix(filename, "GoLand") {
 			golang = exeHomePath + "\\" + filename
@@ -45,6 +44,7 @@ func findExe() {
 }
 
 func Open(app string, path string) string {
+	fmt.Printf("用打%s开仓库%s中...\n", app, path)
 	var truePath string
 	switch strings.ToLower(app) {
 	case "idea":
@@ -80,11 +80,11 @@ func Open(app string, path string) string {
 	if truePath == "" {
 		return "找不到路径"
 	} else {
-		fmt.Println("open with jb")
+		//fmt.Println("open with jb")
 		//truePath = "C:\\Program returnFiles\\JetBrains\\IntelliJ IDEA 2021.3.3\\bin\\idea64.exe"
 		//truePath = "C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\JetBrains\\IntelliJ IDEA 2021.3.3.lnk"
-		fmt.Println(truePath)
-		fmt.Println(path)
+		//fmt.Println(truePath)
+		//fmt.Println(path)
 		err := exec.Command(truePath, path).Start()
 		if err != nil {
 			return err.Error()
