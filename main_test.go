@@ -18,6 +18,16 @@ func TestTagCreate(t *testing.T) {
 	}
 }
 
+func TestOpen(t *testing.T) {
+	runWithArgs([]string{"test", "open", "english"})
+}
+func TestOpenWithIdea(t *testing.T) {
+	runWithArgs([]string{"test", "open", "english", "idea"})
+}
+func TestOpenWithWeb(t *testing.T) {
+	runWithArgs([]string{"test", "open", "english", "web"})
+}
+
 func TestClone(t *testing.T) {
 	runWithArgs([]string{"create", "https://github.com/1357885013/english.git"})
 	// Check if the shortcut was created

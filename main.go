@@ -5,19 +5,36 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"project/cfg"
 	"project/jb"
 	"project/shortcut"
 	"strings"
 )
 
-var Shortcuter = shortcut.NewShortcutCreator()
-var spacePath = "C:\\WorkSpace1\\"
-var spaceHomePath = spacePath + "_home\\"
-var gitUrl = "https://github.com/1357885013/english.git"
+var (
+	Shortcuter    = shortcut.NewShortcutCreator()
+	spacePath     = "C:\\WorkSpace1\\"
+	spaceHomePath = spacePath + "_home\\"
+	gitUrl        = "https://github.com/1357885013/english.git"
+	config        = cfg.Config{}
+	projectConfig = cfg.ProjectConfig{}
+	inited        = true
+)
 
 func main() {
 	// 检查命令行参数
 	fmt.Println("welcome to project manager")
+	// 加载程序配置
+	config = *config.LoadConfig()
+	if config.ProjectLocation == "" {
+		fmt.Println("项目地址未配置， 请用命令pj config projectLocation location配置地址")
+		inited = false
+	}
+	// 加载项目配置
+	if inited {
+		projectConfig = *projectConfig.LoadConfig(config.ProjectLocation)
+	}
+
 	defer Shortcuter.Close()
 	runWithArgs(os.Args)
 
@@ -38,6 +55,7 @@ func runWithArgs(args []string) {
 		fmt.Println(`
 welcome to project manager
 
+pj config projectLocation location
 pj create gitUrl  [openWith]
 pj tag add name  tags split with space
 pj tag remove name  tags split with space
@@ -52,6 +70,52 @@ pj tidy
 		return
 	}
 	switch strings.ToLower(args[0]) {
+	case "cfg":
+		fallthrough
+	case "config":
+		if len < 3 {
+			fmt.Println("参数长度小于3， 请提供完整命令")
+		}
+		switch strings.ToLower(args[1]) {
+		case "projectlocation":
+			if strings.HasSuffix(args[2], "\\") {
+				config.ProjectLocation = args[2]
+			} else {
+				config.ProjectLocation = args[2] + "\\"
+			}
+			config.SaveConfig()
+		}
+	}
+
+	if !inited {
+		fmt.Println("请先配置项目地址")
+		return
+	}
+
+	switch strings.ToLower(args[0]) {
+	case "config":
+		if len < 3 {
+			fmt.Println("请提供name")
+		}
+	case "open":
+		if len == 1 {
+			fmt.Println("请提供name")
+			return
+		}
+		repoName := args[1]
+		openWith := "idea"
+		if len == 3 {
+			openWith = args[2]
+			projectConfig.SetOpenMethod(repoName, openWith)
+			projectConfig.SaveConfig(config.ProjectLocation)
+		} else {
+			if method := projectConfig.GetOpenMethod(repoName); method != "" {
+				openWith = method
+			}
+		}
+		if jb.Open(openWith, spaceHomePath+repoName+"\\") == "成功" {
+			fmt.Println("成功打开")
+		}
 	case "create":
 		fallthrough
 	case "new":

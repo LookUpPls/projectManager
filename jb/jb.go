@@ -85,6 +85,8 @@ func Open(app string, path string) string {
 		//truePath = "C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\JetBrains\\IntelliJ IDEA 2021.3.3.lnk"
 		//fmt.Println(truePath)
 		//fmt.Println(path)
+		fmt.Println("调试至此")
+		return "调试至此"
 		err := exec.Command(truePath, path).Start()
 		if err != nil {
 			return err.Error()
