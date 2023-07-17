@@ -56,14 +56,18 @@ func runWithArgs(args []string) {
 welcome to project manager
 
 pj config projectLocation location
+
 pj create gitUrl  [openWith]
-pj tag add name  tags split with space
-pj tag remove name  tags split with space
 pj open name [openWith]
-pj tag name
-	- list
-pj name
-	- list
+
+pj tag              :list all tags
+pj tag add name  tags_split_with_space
+pj tag remove name  tags_split_with_space
+pj tag name         :list project with the tag
+
+pj name             :list tags with the name
+pj list             :list all the project
+
 pj tidy
 	clear tag which project deleted
 					`)
@@ -93,10 +97,6 @@ pj tidy
 	}
 
 	switch strings.ToLower(args[0]) {
-	case "config":
-		if len < 3 {
-			fmt.Println("请提供name")
-		}
 	case "open":
 		if len == 1 {
 			fmt.Println("请提供name")
@@ -142,20 +142,18 @@ pj tidy
 	case "tag":
 		if len == 1 {
 			// list all tag
-			files, err := os.ReadDir(spacePath)
-			if err != nil {
-				fmt.Println(err)
-			}
 			fmt.Println("all tags ")
-			for _, file := range files {
-				if file.Name() != "_home" {
-					fmt.Print(file.Name() + " ")
-				}
-			}
+			printFiles(spacePath)
 			return
 		}
 
 		switch strings.ToLower(args[1]) {
+		case "list":
+			fallthrough
+		case "all":
+			fmt.Println("all tags ")
+			printFiles(spacePath)
+			return
 		case "add":
 			fallthrough
 		case "new":
@@ -209,10 +207,28 @@ pj tidy
 			}
 
 		}
+	case "list":
+		fallthrough
+	case "all":
+		fmt.Println("all projects:")
+		printFiles(spaceHomePath)
+	default:
 
 	}
 
 	//todo: operation log
+}
+
+func printFiles(path string) {
+	files, err := os.ReadDir(path)
+	if err != nil {
+		fmt.Println(err)
+	}
+	for _, file := range files {
+		if file.Name() != "_home" {
+			fmt.Print(file.Name() + " ")
+		}
+	}
 }
 
 func clone(name string, url string, path string) {
