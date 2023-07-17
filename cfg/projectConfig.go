@@ -49,7 +49,7 @@ func (c *ProjectConfig) LoadConfig(path string) *ProjectConfig {
 	if err != nil {
 		log.Fatalf("error: %v", err)
 	}
-	log.Printf("ProjectConfig: %+v", c2)
+	//log.Printf("ProjectConfig: %+v", c2)
 	return c2
 }
 

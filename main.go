@@ -73,7 +73,7 @@ func runWithArgs(args []string) {
 	// 显示 help
 	args = args[1:]
 	len := len(args)
-	fmt.Printf("收到%d个参数\n", len)
+	//fmt.Printf("收到%d个参数\n", len)
 	if len == 0 {
 		fmt.Println(helpText)
 		return
@@ -111,15 +111,15 @@ func runWithArgs(args []string) {
 		case "list":
 			fallthrough
 		case "ls":
-			fmt.Println("all tags ")
-			printFiles(spacePath)
-			return
+			goto listTag
+
 		case "add":
 			fallthrough
 		case "new":
 			fallthrough
 		case "create":
 			goto addTag
+
 		case "delete":
 			fallthrough
 		case "remove":
@@ -130,9 +130,10 @@ func runWithArgs(args []string) {
 		}
 	case "list":
 		fallthrough
+	case "ls":
+		fallthrough
 	case "all":
-		fmt.Println("all projects:")
-		printFiles(spaceHomePath)
+		goto listProject
 	default:
 
 	}
@@ -196,6 +197,73 @@ newProject:
 		}
 	}
 	return
+listProject:
+	if true {
+		if len == 1 {
+			fmt.Println(">->- listing all projects ")
+			printFiles(spaceHomePath)
+			return
+		}
+		projectName = args[1]
+		_, err := os.ReadDir(spaceHomePath + projectName)
+		if err != nil {
+			fmt.Println("没有该项目，请检查项目名是否正确")
+		}
+
+		fmt.Println(">->- listing all tags of the project")
+		files, err := os.ReadDir(spacePath)
+		for _, file := range files {
+			if file.IsDir() {
+				// 檢查文件是否存在
+				_, err := os.Stat(spacePath + file.Name() + "\\" + projectName + ".lnk")
+				if err != nil {
+					if os.IsNotExist(err) {
+						//fmt.Println("文件不存在")
+					} else {
+						fmt.Println(err)
+					}
+				} else {
+					fmt.Println(file.Name())
+				}
+			}
+		}
+	}
+	return
+listTag:
+	if true {
+		if len == 2 {
+			fmt.Println(">->- listing all tags ")
+			printFiles(spacePath)
+		}
+		pro := map[string]int{}
+		tagCount := 0
+		for i := 2; i < len; i++ {
+			tag := args[i]
+			files, err := os.ReadDir(spacePath + tag)
+			if err != nil {
+				fmt.Println("找不到tag： " + tag)
+				continue
+			}
+			tagCount++
+			for _, file := range files {
+				name := file.Name()
+				count, ok := pro[name]
+				if ok {
+					pro[name] = count + 1
+				} else {
+					pro[name] = 1
+				}
+			}
+		}
+		fmt.Println(">->- listing projects with those tags ")
+		for k, v := range pro {
+			if v == tagCount {
+				fmt.Println(k)
+			}
+		}
+	}
+	return
+
 addTag:
 	fmt.Println("111")
 	if len < 3 {
@@ -250,7 +318,7 @@ func printFiles(path string) {
 	}
 	for _, file := range files {
 		if file.Name() != "_home" {
-			fmt.Print(file.Name() + " ")
+			fmt.Println(file.Name() + " ")
 		}
 	}
 }

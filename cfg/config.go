@@ -23,7 +23,7 @@ func (c *Config) LoadConfig() *Config {
 	if err != nil {
 		log.Fatalf("error: %v", err)
 	}
-	log.Printf("ProjectConfig: %+v", c2)
+	//log.Printf("ProjectConfig: %+v", c2)
 	//c.ProjectLocation = c2.ProjectLocation
 	return c2
 }
