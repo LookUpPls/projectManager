@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"project/cfg"
-	"project/jb"
-	"project/shortcut"
+	"pj/cfg"
+	"pj/jb"
+	"pj/shortcut"
 	"strings"
 )
 
@@ -208,6 +208,7 @@ listProject:
 		_, err := os.ReadDir(spaceHomePath + projectName)
 		if err != nil {
 			fmt.Println("没有该项目，请检查项目名是否正确")
+			return
 		}
 
 		fmt.Println(">->- listing all tags of the project")

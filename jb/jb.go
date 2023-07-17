@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"project/shortcut"
+	"pj/shortcut"
 	"strings"
 )
 

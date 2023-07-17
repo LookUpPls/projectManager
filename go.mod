@@ -1,4 +1,4 @@
-module project
+module pj
 
 go 1.20
 
