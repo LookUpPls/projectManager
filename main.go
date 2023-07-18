@@ -13,24 +13,26 @@ import (
 
 var (
 	helpText = `
+
 welcome to project manager
 
-pj config projectLocation location
+> pj config projectLocation location
 
-pj create gitUrl  [openWith]
-pj open name [openWith]
+> pj create gitUrl  [openWith]
 
-pj tag list  [tags_split_with_space]        :list with tags
-pj tag add name  tags_split_with_space
-pj tag remove name  tags_split_with_space
-pj tag name         :list project with the tag
+> pj open name [openWith]
 
-pj list             :list all the project
-pj name             :list tags with the name
+> pj tag ls  [tags_split_with_space]        :list with tags
+> pj tag add name  tags_split_with_space
+> pj tag rm  name  tags_split_with_space
+> pj tag name         :list project with the tag
 
-pj tidy
-	clear tag which project deleted
-					`
+> pj list             :list all the project
+> pj name             :list project's tags
+
+> pj tidy             :clear tag which project deleted
+
+`
 	Shortcuter    = shortcut.NewShortcutCreator()
 	spacePath     = "C:\\WorkSpace1\\"
 	spaceHomePath = spacePath + "_home\\"
@@ -46,7 +48,6 @@ pj tidy
 
 func main() {
 	// 检查命令行参数
-	fmt.Println("welcome to project manager")
 	// 加载程序配置
 	config = *config.LoadConfig()
 	if config.ProjectLocation == "" {
@@ -95,10 +96,12 @@ func runWithArgs(args []string) {
 	switch strings.ToLower(args[0]) {
 	case "open":
 		goto openProject
+
 	case "create":
 		fallthrough
 	case "new":
 		goto newProject
+
 	case "tag":
 		if len == 1 {
 			// list all tag
@@ -171,10 +174,16 @@ openProject:
 			openWith = method
 		}
 	}
+	if !isFileExist(spaceHomePath + repoName + "\\") {
+		fmt.Println("没有该项目，请检查名称或space的位置设置")
+		return
+	}
+
 	if jb.Open(openWith, spaceHomePath+repoName+"\\") == "成功" {
 		fmt.Println("成功打开")
 	}
 	return
+
 newProject:
 	if len == 1 {
 		fmt.Println("请提供git仓库地址")
@@ -215,15 +224,8 @@ listProject:
 		files, err := os.ReadDir(spacePath)
 		for _, file := range files {
 			if file.IsDir() {
-				// 檢查文件是否存在
-				_, err := os.Stat(spacePath + file.Name() + "\\" + projectName + ".lnk")
-				if err != nil {
-					if os.IsNotExist(err) {
-						//fmt.Println("文件不存在")
-					} else {
-						fmt.Println(err)
-					}
-				} else {
+				// 检查文件是否存在
+				if isFileExist(spacePath + file.Name() + "\\" + projectName + ".lnk") {
 					fmt.Println(file.Name())
 				}
 			}
@@ -312,6 +314,19 @@ deleteTag:
 	return
 }
 
+func isFileExist(path string) bool {
+	_, err := os.Stat(path)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return false
+		} else {
+			fmt.Println(err)
+			return false
+		}
+	} else {
+		return true
+	}
+}
 func printFiles(path string) {
 	files, err := os.ReadDir(path)
 	if err != nil {

@@ -46,35 +46,37 @@ func findExe() {
 func Open(app string, path string) string {
 	fmt.Printf("用打%s开仓库%s中...\n", app, path)
 	var truePath string
-	switch strings.ToLower(app) {
-	case "idea":
-		fallthrough
-	case "java":
-		if idea == "" {
-			findExe()
+	if true {
+		switch strings.ToLower(app) {
+		case "idea":
+			fallthrough
+		case "java":
+			if idea == "" {
+				findExe()
+			}
+			truePath = idea
+		case "web":
+			fallthrough
+		case "webstorm":
+			if web == "" {
+				findExe()
+			}
+			truePath = web
+		case "go":
+			fallthrough
+		case "golang":
+			if golang == "" {
+				findExe()
+			}
+			truePath = golang
+		case "python":
+			fallthrough
+		case "py":
+			if python == "" {
+				findExe()
+			}
+			truePath = python
 		}
-		truePath = idea
-	case "web":
-		fallthrough
-	case "webstorm":
-		if web == "" {
-			findExe()
-		}
-		truePath = web
-	case "go":
-		fallthrough
-	case "golang":
-		if golang == "" {
-			findExe()
-		}
-		truePath = golang
-	case "python":
-		fallthrough
-	case "py":
-		if python == "" {
-			findExe()
-		}
-		truePath = python
 	}
 
 	if truePath == "" {
@@ -85,8 +87,8 @@ func Open(app string, path string) string {
 		//truePath = "C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\JetBrains\\IntelliJ IDEA 2021.3.3.lnk"
 		//fmt.Println(truePath)
 		//fmt.Println(path)
-		fmt.Println("调试至此")
-		return "调试至此"
+		//fmt.Println("调试至此")
+		//return "调试至此"
 		err := exec.Command(truePath, path).Start()
 		if err != nil {
 			return err.Error()
