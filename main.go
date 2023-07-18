@@ -30,7 +30,7 @@ welcome to project manager
 > pj list             :list all the project
 > pj name             :list project's tags
 
-> pj tidy             :clear tag which project deleted
+> pj tidy             :clear tag which project deleted,只会删除空文件夹和lnk文件
 
 `
 	Shortcuter    = shortcut.NewShortcutCreator()
@@ -57,6 +57,8 @@ func main() {
 	// 加载项目配置
 	if inited {
 		projectConfig = *projectConfig.LoadConfig(config.ProjectLocation)
+		spacePath = config.ProjectLocation
+		spaceHomePath = spacePath + "_home\\"
 	}
 
 	defer Shortcuter.Close()
@@ -73,18 +75,20 @@ func runWithArgs(args []string) {
 
 	// 显示 help
 	args = args[1:]
-	len := len(args)
-	//fmt.Printf("收到%d个参数\n", len)
-	if len == 0 {
+	argLen := len(args)
+	//fmt.Printf("收到%d个参数\n", argLen)
+	if argLen == 0 {
 		fmt.Println(helpText)
 		return
 	}
 
-	switch strings.ToLower(args[0]) {
-	case "cfg":
-		fallthrough
-	case "config":
-		goto setConfig
+	if true {
+		switch strings.ToLower(args[0]) {
+		case "cfg":
+			fallthrough
+		case "config":
+			goto setConfig
+		}
 	}
 
 	if !inited {
@@ -93,58 +97,65 @@ func runWithArgs(args []string) {
 	}
 
 	//处理第二个参数
-	switch strings.ToLower(args[0]) {
-	case "open":
-		goto openProject
+	if true {
+		switch strings.ToLower(args[0]) {
+		case "tidy":
+			goto tidy
 
-	case "create":
-		fallthrough
-	case "new":
-		goto newProject
+		case "open":
+			goto openProject
 
-	case "tag":
-		if len == 1 {
-			// list all tag
-			fmt.Println("all tags ")
-			printFiles(spacePath)
-			return
-		}
+		case "create":
+			fallthrough
+		case "new":
+			goto newProject
 
-		switch strings.ToLower(args[1]) {
+		case "tag":
+			if argLen == 1 {
+				// list all tag
+				fmt.Println("all tags ")
+				printFiles(spacePath)
+				return
+			}
+
+			if true {
+				switch strings.ToLower(args[1]) {
+				case "list":
+					fallthrough
+				case "ls":
+					goto listTag
+
+				case "add":
+					fallthrough
+				case "new":
+					fallthrough
+				case "create":
+					goto addTag
+
+				case "delete":
+					fallthrough
+				case "remove":
+					fallthrough
+				case "rm":
+					goto deleteTag
+
+				}
+			}
 		case "list":
 			fallthrough
 		case "ls":
-			goto listTag
-
-		case "add":
 			fallthrough
-		case "new":
-			fallthrough
-		case "create":
-			goto addTag
-
-		case "delete":
-			fallthrough
-		case "remove":
-			fallthrough
-		case "rm":
-			goto deleteTag
+		case "all":
+			goto listProject
+		default:
 
 		}
-	case "list":
-		fallthrough
-	case "ls":
-		fallthrough
-	case "all":
-		goto listProject
-	default:
-
 	}
 
 	//todo: operation log
 
 setConfig:
-	if len < 3 {
+	if argLen < 3 {
 		fmt.Println("参数长度小于3， 请提供完整命令")
 	}
 	switch strings.ToLower(args[1]) {
@@ -159,13 +170,13 @@ setConfig:
 	return
 
 openProject:
-	if len == 1 {
+	if argLen == 1 {
 		fmt.Println("请提供name")
 		return
 	}
 	repoName = args[1]
 	openWith = "idea"
-	if len == 3 {
+	if argLen == 3 {
 		openWith = args[2]
 		projectConfig.SetOpenMethod(repoName, openWith)
 		projectConfig.SaveConfig(config.ProjectLocation)
@@ -180,12 +191,12 @@ openProject:
 	}
 
 	if jb.Open(openWith, spaceHomePath+repoName+"\\") == "成功" {
-		fmt.Println("成功打开")
+		fmt.Println("正在打开...")
 	}
 	return
 
 newProject:
-	if len == 1 {
+	if argLen == 1 {
 		fmt.Println("请提供git仓库地址")
 		return
 	}
@@ -199,7 +210,7 @@ newProject:
 	// 创建快捷方式
 	Shortcuter.CreateShortcut("C:\\WorkSpace1\\"+repoName+".lnk", "C:\\WorkSpace1\\_home\\"+repoName)
 
-	if len >= 3 {
+	if argLen >= 3 {
 		// 用IDEA打开仓库文件夹
 		if jb.Open(args[2], spaceHomePath+repoName+"\\") == "成功" {
 			fmt.Println("成功打开")
@@ -208,7 +219,7 @@ newProject:
 	return
 listProject:
 	if true {
-		if len == 1 {
+		if argLen == 1 {
 			fmt.Println(">->- listing all projects ")
 			printFiles(spaceHomePath)
 			return
@@ -234,13 +245,13 @@ listProject:
 	return
 listTag:
 	if true {
-		if len == 2 {
+		if argLen == 2 {
 			fmt.Println(">->- listing all tags ")
 			printFiles(spacePath)
 		}
 		pro := map[string]int{}
 		tagCount := 0
-		for i := 2; i < len; i++ {
+		for i := 2; i < argLen; i++ {
 			tag := args[i]
 			files, err := os.ReadDir(spacePath + tag)
 			if err != nil {
@@ -269,7 +280,7 @@ listTag:
 
 addTag:
 	fmt.Println("111")
-	if len < 3 {
+	if argLen < 3 {
 		fmt.Println("请输入project name")
 	}
 	projectName = args[2]
@@ -277,10 +288,10 @@ addTag:
 		fmt.Println("project not exist")
 		return
 	}
-	if len < 4 {
+	if argLen < 4 {
 		fmt.Println("请输入tag name")
 	}
-	for i := 3; i < len; i++ {
+	for i := 3; i < argLen; i++ {
 		err := os.MkdirAll(spacePath+args[i], 0755)
 		if err != nil {
 			fmt.Println(err)
@@ -289,14 +300,14 @@ addTag:
 	}
 	return
 deleteTag:
-	if len < 3 {
+	if argLen < 3 {
 		fmt.Println("请输入project name")
 	}
 	projectName = args[2]
-	if len < 4 {
+	if argLen < 4 {
 		fmt.Println("请输入tag name")
 	}
-	for i := 3; i < len; i++ {
+	for i := 3; i < argLen; i++ {
 		fmt.Println("222")
 		err := os.Remove(spacePath + args[i] + "\\" + projectName + ".lnk")
 		if err != nil {
@@ -312,6 +323,76 @@ deleteTag:
 		}
 	}
 	return
+tidy:
+	{
+		//todo: 删除无效的tag 和 project
+		tags, err := os.ReadDir(spacePath)
+		if err != nil {
+			fmt.Println("打开space时出错,请检查地址")
+		}
+		// 遍历所有tag
+		for _, tagDir := range tags {
+			if tagDir.Name() == "_home" {
+				continue
+			}
+			if tagDir.IsDir() {
+				// 读取tag下的所有project
+				ps, err := os.ReadDir(spacePath + tagDir.Name())
+				if err != nil {
+					fmt.Println("打开space时出错,请检查地址")
+				}
+				// 删除空tag
+				if len(ps) == 0 {
+					err := os.Remove(spacePath + tagDir.Name())
+					if err != nil {
+						fmt.Printf("删除空tag%s失败\n", tagDir.Name())
+					}
+				}
+				for _, p := range ps {
+					if p.IsDir() {
+						fmt.Printf("%s文件夹下有个名为%s的文件夹\n", tagDir.Name(), p.Name())
+					} else {
+						if strings.HasSuffix(p.Name(), ".lnk") {
+							// 去掉Shortcut尾缀
+							name := p.Name()
+							if strings.HasSuffix(name, " - Shortcut.lnk") {
+								oldPath := spacePath + tagDir.Name() + "\\" + name
+								name, _ = strings.CutSuffix(name, " - Shortcut.lnk")
+								name += ".lnk"
+								newPath := spacePath + tagDir.Name() + "\\" + name
+								err := os.Rename(oldPath, newPath)
+								if err != nil {
+									fmt.Println(oldPath + "  重命名失败" + err.Error())
+								}
+							}
+							// 删除无效project
+							name, _ = strings.CutSuffix(name, ".lnk")
+							if !isFileExist(spaceHomePath + name) {
+								err := os.Remove(spacePath + tagDir.Name() + "\\" + name + ".lnk")
+								if err != nil {
+									fmt.Printf("删除无效project:%s失败\n", tagDir.Name()+"\\"+name+".lnk")
+								}
+							}
+						} else {
+							fmt.Printf("%s文件夹下有个名为%s的其它文件\n", tagDir.Name(), p.Name())
+						}
+					}
+				}
+
+			} else {
+				// 去掉Shortcut尾缀
+				if strings.HasSuffix(tagDir.Name(), " - Shortcut.lnk") {
+					oldPath := spacePath + tagDir.Name()
+					newPath, _ := strings.CutSuffix(oldPath, " - Shortcut.lnk")
+					err := os.Rename(oldPath, newPath+".lnk")
+					if err != nil {
+						fmt.Println(oldPath + "  重命名失败" + err.Error())
+					}
+				}
+			}
+		}
+		return
+	}
 }
 
 func isFileExist(path string) bool {
