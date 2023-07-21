@@ -43,7 +43,7 @@ func findExe() {
 
 }
 
-func Open(app string, path string) string {
+func Open(app string, path string) {
 	fmt.Printf("用打%s开仓库%s中...\n", app, path)
 	var truePath string
 	if true {
@@ -76,11 +76,17 @@ func Open(app string, path string) string {
 				findExe()
 			}
 			truePath = python
+		case "explorer":
+			fallthrough
+		case "e":
+			truePath = "explorer"
 		}
+
 	}
 
 	if truePath == "" {
-		return "找不到路径"
+		fmt.Println("找不到路径")
+		return
 	} else {
 		//fmt.Println("open with jb")
 		//truePath = "C:\\Program returnFiles\\JetBrains\\IntelliJ IDEA 2021.3.3\\bin\\idea64.exe"
@@ -91,8 +97,10 @@ func Open(app string, path string) string {
 		//return "调试至此"
 		err := exec.Command(truePath, path).Start()
 		if err != nil {
-			return err.Error()
+			fmt.Println(err.Error())
+			return
 		}
-		return "成功"
+		fmt.Println("正在打开...")
+		return
 	}
 }

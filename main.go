@@ -34,7 +34,7 @@ welcome to project manager
 
 `
 	Shortcuter    = shortcut.NewShortcutCreator()
-	spacePath     = "C:\\WorkSpace1\\"
+	spacePath     = "C:\\WorkSpace\\"
 	spaceHomePath = spacePath + "_home\\"
 	gitUrl        = "https://github.com/1357885013/english.git"
 	config        = cfg.Config{}
@@ -106,6 +106,8 @@ func runWithArgs(args []string) {
 			goto openProject
 
 		case "create":
+			fallthrough
+		case "add":
 			fallthrough
 		case "new":
 			goto newProject
@@ -190,9 +192,7 @@ openProject:
 		return
 	}
 
-	if jb.Open(openWith, spaceHomePath+repoName+"\\") == "成功" {
-		fmt.Println("正在打开...")
-	}
+	jb.Open(openWith, spaceHomePath+repoName+"\\")
 	return
 
 newProject:
@@ -208,13 +208,11 @@ newProject:
 	clone(repoName, gitUrl, spaceHomePath+repoName+"\\")
 
 	// 创建快捷方式
-	Shortcuter.CreateShortcut("C:\\WorkSpace1\\"+repoName+".lnk", "C:\\WorkSpace1\\_home\\"+repoName)
+	Shortcuter.CreateShortcut(spacePath+repoName+".lnk", spaceHomePath+repoName)
 
 	if argLen >= 3 {
 		// 用IDEA打开仓库文件夹
-		if jb.Open(args[2], spaceHomePath+repoName+"\\") == "成功" {
-			fmt.Println("成功打开")
-		}
+		jb.Open(args[2], spaceHomePath+repoName+"\\")
 	}
 	return
 listProject:
@@ -367,6 +365,7 @@ tidy:
 							}
 							// 删除无效project
 							name, _ = strings.CutSuffix(name, ".lnk")
+							//todo: 用map优化，减少磁盘次数
 							if !isFileExist(spaceHomePath + name) {
 								err := os.Remove(spacePath + tagDir.Name() + "\\" + name + ".lnk")
 								if err != nil {
