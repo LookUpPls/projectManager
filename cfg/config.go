@@ -1,18 +1,50 @@
 package cfg
 
 import (
+	"fmt"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"log"
+	"os"
 )
 
 type Config struct {
 	ProjectLocation string
 }
 
+func loadConfigPath() string {
+	home, err := os.UserConfigDir()
+	if err != nil {
+		fmt.Println("找不到用户home路径:", err)
+		home = ".\\"
+	} else {
+		home += "\\projectManager"
+	}
+	return home
+}
+func loadHomePath() string {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		fmt.Println("找不到用户home路径:", err)
+		home = ".\\"
+	} else {
+		home += "\\"
+	}
+	return home
+}
+func loadExecutablePath() string {
+	home, err := os.Executable()
+	if err != nil {
+		fmt.Println("找不到用户home路径:", err)
+		home = ".\\"
+	}
+	fmt.Println(home)
+	return home
+}
 func (c *Config) LoadConfig() *Config {
 	// 从YAML文件读取数据
-	data, err := ioutil.ReadFile("cfg.yaml")
+	home := loadHomePath()
+	data, err := ioutil.ReadFile(home + ".projectManager.yaml")
 	if err != nil {
 		log.Printf("Error reading config file: %v. Creating new config file...", err)
 		c.SaveConfig()
@@ -29,11 +61,12 @@ func (c *Config) LoadConfig() *Config {
 }
 
 func (c *Config) SaveConfig() {
+	home := loadHomePath()
 	data, err := yaml.Marshal(c)
 	if err != nil {
 		log.Fatalf("error: %v", err)
 	}
-	err = ioutil.WriteFile("cfg.yaml", data, 0644)
+	err = ioutil.WriteFile(home+".projectManager.yaml", data, 0644)
 	if err != nil {
 		log.Fatalf("error: %v", err)
 	}

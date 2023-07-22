@@ -168,6 +168,8 @@ setConfig:
 			config.ProjectLocation = args[2] + "\\"
 		}
 		config.SaveConfig()
+	default:
+		fmt.Println("无效的设置名秤,请检查")
 	}
 	return
 
