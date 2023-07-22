@@ -9,7 +9,7 @@ import (
 )
 
 type Config struct {
-	ProjectLocation string
+	SpaceLocation string
 }
 
 func loadConfigPath() string {
@@ -56,7 +56,7 @@ func (c *Config) LoadConfig() *Config {
 		log.Fatalf("error: %v", err)
 	}
 	//log.Printf("ProjectConfig: %+v", c2)
-	//c.ProjectLocation = c2.ProjectLocation
+	//c.SpaceLocation = c2.SpaceLocation
 	return c2
 }
 

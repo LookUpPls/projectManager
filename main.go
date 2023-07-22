@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"github.com/atotto/clipboard"
 	"os"
 	"os/exec"
 	"pj/cfg"
@@ -16,21 +17,21 @@ var (
 
 welcome to project manager
 
-> pj config projectLocation location
+> pj config spaceLocation location   : set the space location
 
-> pj create gitUrl  [openWith]
+> pj create gitUrl  [openWith]       : create project use the git url with git clone command
 
-> pj open name [openWith]
+> pj open name [openWith]            : open project, can open with java.idea.web.go.py.python.e.explorer
 
-> pj tag ls  [tags_split_with_space]        :list with tags
-> pj tag add name  tags_split_with_space
-> pj tag rm  name  tags_split_with_space
-> pj tag name         :list project with the tag
+> pj tag                   : list all tags
+> pj tag ls  [tags]        : list projects with given tags
+> pj tag add name tags     : add tags to project,multi tags split with space
+> pj tag rm  name tags     : rm  tags to project,multi tags split with space
 
-> pj list             :list all the project
-> pj name             :list project's tags
+> pj ls                    :list all the project
+> pj name                  :list project's tags
 
-> pj tidy             :clear tag which project deleted,只会删除空文件夹和lnk文件
+> pj tidy                  :clear tag which project deleted,只会删除空文件夹和lnk文件
 
 `
 	Shortcuter    = shortcut.NewShortcutCreator()
@@ -50,14 +51,14 @@ func main() {
 	// 检查命令行参数
 	// 加载程序配置
 	config = *config.LoadConfig()
-	if config.ProjectLocation == "" {
-		fmt.Println("项目地址未配置， 请用命令pj config projectLocation location配置地址")
+	if config.SpaceLocation == "" {
+		fmt.Println("项目地址未配置， 请用命令pj config spaceLocation location配置地址")
 		inited = false
 	}
 	// 加载项目配置
 	if inited {
-		projectConfig = *projectConfig.LoadConfig(config.ProjectLocation)
-		spacePath = config.ProjectLocation
+		projectConfig = *projectConfig.LoadConfig(config.SpaceLocation)
+		spacePath = config.SpaceLocation
 		spaceHomePath = spacePath + "_home\\"
 	}
 
@@ -79,6 +80,19 @@ func runWithArgs(args []string) {
 	//fmt.Printf("收到%d个参数\n", argLen)
 	if argLen == 0 {
 		fmt.Println(helpText)
+		chDir := "cd " + spaceHomePath
+		fmt.Printf("已将 %s复制到剪贴板，进入_home目录可以使用项目名自动补全", chDir)
+		//err := os.Chdir(spaceHomePath)
+		//cmd := exec.Command("cmd", "-c", "cd "+spaceHomePath)
+		//err := cmd.Run()
+		err := clipboard.WriteAll(chDir)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		if err != nil {
+			fmt.Println(err.Error())
+		}
 		return
 	}
 
@@ -161,11 +175,11 @@ setConfig:
 		fmt.Println("参数长度小于3， 请提供完整命令")
 	}
 	switch strings.ToLower(args[1]) {
-	case "projectlocation":
+	case "spacelocation":
 		if strings.HasSuffix(args[2], "\\") {
-			config.ProjectLocation = args[2]
+			config.SpaceLocation = args[2]
 		} else {
-			config.ProjectLocation = args[2] + "\\"
+			config.SpaceLocation = args[2] + "\\"
 		}
 		config.SaveConfig()
 	default:
@@ -178,12 +192,12 @@ openProject:
 		fmt.Println("请提供name")
 		return
 	}
-	repoName = args[1]
+	repoName, _ = strings.CutSuffix(args[1], "\\")
 	openWith = "idea"
 	if argLen == 3 {
 		openWith = args[2]
 		projectConfig.SetOpenMethod(repoName, openWith)
-		projectConfig.SaveConfig(config.ProjectLocation)
+		projectConfig.SaveConfig(config.SpaceLocation)
 	} else {
 		if method := projectConfig.GetOpenMethod(repoName); method != "" {
 			openWith = method
@@ -224,7 +238,7 @@ listProject:
 			printFiles(spaceHomePath)
 			return
 		}
-		projectName = args[1]
+		projectName, _ = strings.CutSuffix(args[1], "\\")
 		_, err := os.ReadDir(spaceHomePath + projectName)
 		if err != nil {
 			fmt.Println("没有该项目，请检查项目名是否正确")
@@ -245,9 +259,12 @@ listProject:
 	return
 listTag:
 	if true {
+		fmt.Println()
 		if argLen == 2 {
 			fmt.Println(">->- listing all tags ")
+			fmt.Println()
 			printFiles(spacePath)
+			return
 		}
 		pro := map[string]int{}
 		tagCount := 0
@@ -269,9 +286,12 @@ listTag:
 				}
 			}
 		}
+		fmt.Println()
 		fmt.Println(">->- listing projects with those tags ")
+		fmt.Println()
 		for k, v := range pro {
 			if v == tagCount {
+				k, _ := strings.CutSuffix(k, ".lnk")
 				fmt.Println(k)
 			}
 		}
@@ -283,7 +303,7 @@ addTag:
 	if argLen < 3 {
 		fmt.Println("请输入project name")
 	}
-	projectName = args[2]
+	projectName, _ = strings.CutSuffix(args[1], "\\")
 	if _, err := os.Stat(spaceHomePath + projectName); os.IsNotExist(err) {
 		fmt.Println("project not exist")
 		return
@@ -303,7 +323,7 @@ deleteTag:
 	if argLen < 3 {
 		fmt.Println("请输入project name")
 	}
-	projectName = args[2]
+	projectName, _ = strings.CutSuffix(args[1], "\\")
 	if argLen < 4 {
 		fmt.Println("请输入tag name")
 	}
@@ -415,8 +435,8 @@ func printFiles(path string) {
 		fmt.Println(err)
 	}
 	for _, file := range files {
-		if file.Name() != "_home" {
-			fmt.Println(file.Name() + " ")
+		if file.Name() != "_home" && file.IsDir() {
+			fmt.Print(file.Name() + "    ")
 		}
 	}
 }
