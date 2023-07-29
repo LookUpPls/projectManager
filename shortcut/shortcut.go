@@ -30,29 +30,25 @@ func NewShortcutCreator() *ShortcutCreator {
 }
 
 func (sc *ShortcutCreator) CreateShortcut(shortcutPath, targetPath string) {
-	fmt.Printf("开始创建快捷方式... %s -> %s\n", shortcutPath, targetPath)
 	cs, err := oleutil.CallMethod(sc.wshell, "CreateShortcut", shortcutPath)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	idispatch := cs.ToIDispatch()
-	property, err := oleutil.PutProperty(idispatch, "TargetPath", targetPath)
+	iDispatch := cs.ToIDispatch()
+	_, err = oleutil.PutProperty(iDispatch, "TargetPath", targetPath)
 	if err != nil {
 		fmt.Println(err)
 	}
-	fmt.Println(property)
-	putProperty, err := oleutil.PutProperty(idispatch, "WorkingDirectory", targetPath)
+	_, err = oleutil.PutProperty(iDispatch, "WorkingDirectory", targetPath)
 	if err != nil {
 		fmt.Println(err)
 	}
-	fmt.Println(putProperty)
-	callMethod, err := oleutil.CallMethod(idispatch, "Save")
+	_, err = oleutil.CallMethod(iDispatch, "Save")
 	if err != nil {
 		fmt.Println(err)
 	}
-	fmt.Println(callMethod)
-
+	fmt.Printf("已创建快捷方式:   %s      %s\n", shortcutPath, targetPath)
 }
 
 func (sc *ShortcutCreator) LoadShortcutTarget(shortcutPath string) string {
