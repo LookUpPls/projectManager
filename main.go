@@ -299,13 +299,13 @@ listTag:
 	return
 
 addTag:
-	fmt.Println("111")
 	if argLen < 3 {
 		fmt.Println("请输入project name")
 	}
-	projectName, _ = strings.CutSuffix(args[1], "\\")
-	if _, err := os.Stat(spaceHomePath + projectName); os.IsNotExist(err) {
+	projectName, _ = strings.CutSuffix(args[2], "\\")
+	if !isFileExist(spaceHomePath + projectName) {
 		fmt.Println("project not exist")
+		fmt.Println("  " + spaceHomePath + projectName)
 		return
 	}
 	if argLen < 4 {
