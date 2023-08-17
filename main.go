@@ -150,6 +150,8 @@ func runWithArgs(args []string) {
 
 				case "delete":
 					fallthrough
+				case "del":
+					fallthrough
 				case "remove":
 					fallthrough
 				case "rm":
@@ -323,7 +325,7 @@ deleteTag:
 	if argLen < 3 {
 		fmt.Println("请输入project name")
 	}
-	projectName, _ = strings.CutSuffix(args[1], "\\")
+	projectName, _ = strings.CutSuffix(args[2], "\\")
 	if argLen < 4 {
 		fmt.Println("请输入tag name")
 	}
