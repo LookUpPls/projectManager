@@ -12,6 +12,8 @@ var idea string
 var web string
 var golang string
 var python string
+var c string
+var vscode string = "C:\\Program Files\\Microsoft VS Code\\Code.exe"
 var exeHomePath = "C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\JetBrains"
 
 func findExe() {
@@ -37,6 +39,9 @@ func findExe() {
 		} else if strings.HasPrefix(filename, "WebStorm") {
 			web = exeHomePath + "\\" + filename
 			web = shortcutCreator.LoadShortcutTarget(web)
+		} else if strings.HasPrefix(filename, "CLion") {
+			c = exeHomePath + "\\" + filename
+			c = shortcutCreator.LoadShortcutTarget(c)
 		}
 
 	}
@@ -55,6 +60,7 @@ func Open(app string, path string) {
 				findExe()
 			}
 			truePath = idea
+
 		case "web":
 			fallthrough
 		case "webstorm":
@@ -62,6 +68,7 @@ func Open(app string, path string) {
 				findExe()
 			}
 			truePath = web
+
 		case "go":
 			fallthrough
 		case "golang":
@@ -69,6 +76,7 @@ func Open(app string, path string) {
 				findExe()
 			}
 			truePath = golang
+
 		case "python":
 			fallthrough
 		case "py":
@@ -76,10 +84,25 @@ func Open(app string, path string) {
 				findExe()
 			}
 			truePath = python
+
 		case "explorer":
 			fallthrough
 		case "e":
 			truePath = "explorer"
+
+		case "clion":
+			fallthrough
+		case "c":
+			if c == "" {
+				findExe()
+			}
+			truePath = c
+
+		case "vs":
+			fallthrough
+		case "vscode":
+			truePath = vscode
+
 		}
 
 	}
