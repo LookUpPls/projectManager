@@ -226,7 +226,7 @@ newProject:
 	clone(repoName, gitUrl, spaceHomePath+repoName+"\\")
 
 	// 创建快捷方式
-	Shortcuter.CreateShortcut(spacePath+repoName+".lnk", spaceHomePath+repoName)
+	//Shortcuter.CreateShortcut(spacePath+repoName+".lnk", spaceHomePath+repoName)
 
 	if argLen >= 3 {
 		// 用IDEA打开仓库文件夹
