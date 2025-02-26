@@ -13,6 +13,8 @@ var web string
 var golang string
 var python string
 var c string
+var android = ""
+var androidLnk = "C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\Android Studio\\Android Studio.lnk"
 var vscode string = "C:\\Program Files\\Microsoft VS Code\\Code.exe"
 var exeHomePath = "C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\JetBrains"
 
@@ -22,7 +24,8 @@ func findExe() {
 	if err != nil {
 		fmt.Println(err)
 	}
-
+	shortcutCreator := shortcut.NewShortcutCreator()
+	android = shortcutCreator.LoadShortcutTarget(androidLnk)
 	for _, file := range files {
 		filename := file.Name()
 		//fmt.Println(filename)
@@ -49,8 +52,8 @@ func findExe() {
 }
 
 func Open(app string, path string) {
-	fmt.Printf("用打%s开仓库%s中...\n", app, path)
 	var truePath string
+	var openType string
 	if true {
 		switch strings.ToLower(app) {
 		case "idea":
@@ -59,6 +62,7 @@ func Open(app string, path string) {
 			if idea == "" {
 				findExe()
 			}
+			openType = "idea"
 			truePath = idea
 
 		case "web":
@@ -67,6 +71,7 @@ func Open(app string, path string) {
 			if web == "" {
 				findExe()
 			}
+			openType = "webstorm"
 			truePath = web
 
 		case "go":
@@ -75,6 +80,7 @@ func Open(app string, path string) {
 			if golang == "" {
 				findExe()
 			}
+			openType = "golang"
 			truePath = golang
 
 		case "python":
@@ -83,11 +89,13 @@ func Open(app string, path string) {
 			if python == "" {
 				findExe()
 			}
+			openType = "python"
 			truePath = python
 
 		case "explorer":
 			fallthrough
 		case "e":
+			openType = "explorer"
 			truePath = "explorer"
 
 		case "clion":
@@ -96,16 +104,27 @@ func Open(app string, path string) {
 			if c == "" {
 				findExe()
 			}
+			openType = "clion"
 			truePath = c
 
 		case "vs":
 			fallthrough
 		case "vscode":
+			openType = "vscode"
 			truePath = vscode
 
+		case "android":
+			fallthrough
+		case "a":
+			if truePath == "" {
+				findExe()
+			}
+			openType = "android"
+			truePath = android
 		}
 
 	}
+	fmt.Printf("用打%s开仓库%s中...\n", openType, path)
 
 	if truePath == "" {
 		fmt.Println("找不到路径")
